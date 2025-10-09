@@ -9,6 +9,7 @@ from flask import Flask
 import threading
 import sys
 import logging
+import requests
 
 # -----------------------------
 # 🔹 Load environment variables
@@ -102,27 +103,25 @@ timetable = {
 # 🔹 Email function
 # -----------------------------
 def send_email(subject, body):
-    try:
-        app.logger.info(f"📨 Trying to send email from {EMAIL} to {TO_EMAIL}...")
-        msg = MIMEText(body)
-        msg['From'] = EMAIL
-        msg['To'] = TO_EMAIL
-        msg['Subject'] = subject
+    api_key = os.getenv("BREVO_API_KEY")
+    sender = "yourname@yourdomain.com"  # or verified Brevo sender
+    to_email = "sanskarsharmamusic999@gmail.com"
 
-        app.logger.info("🔹 Connecting to Gmail SMTP...")
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as server:
-            server.starttls()
-            app.logger.info("🔹 Logging in...")
-            server.login(EMAIL, PASSWORD)
-            app.logger.info("🔹 Sending email...")
-            server.send_message(msg)
+    url = "https://api.brevo.com/v3/smtp/email"
+    headers = {
+        "accept": "application/json",
+        "api-key": api_key,
+        "content-type": "application/json",
+    }
+    data = {
+        "sender": {"name": "Class Alert Agent", "email": sender},
+        "to": [{"email": to_email}],
+        "subject": subject,
+        "htmlContent": f"<p>{body}</p>",
+    }
 
-        app.logger.info(f"✅ Email sent: {subject}")
-        return True
-
-    except Exception as e:
-        app.logger.error(f"❌ Failed to send email: {e}")
-        return False
+    response = requests.post(url, headers=headers, json=data)
+    return response.status_code == 201
 
 
 # -----------------------------
