@@ -30,8 +30,11 @@ def home():
 
 @app.route("/testmail")
 def testmail():
-    send_email("Render Test Mail ✅", "Your Flask Reminder Bot just sent this successfully!")
-    return "📩 Test mail sent! Check your inbox."
+    subject = "Test Email from Render"
+    body = "✅ If you receive this, your Class Alert Bot email system works!"
+    send_email(subject, body)
+    return "📨 Test email triggered. Check your inbox or spam!"
+
 
 # -----------------------------
 # 🔹 Timetable
@@ -102,7 +105,7 @@ def send_email(subject, body):
         msg['Subject'] = subject
 
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.set_debuglevel(1)  # 👈 This shows full Gmail connection log
+            server.set_debuglevel(1)  # 👈 Show Gmail log
             server.starttls()
             server.login(EMAIL, PASSWORD)
             server.send_message(msg)
