@@ -33,7 +33,7 @@ def testmail():
     subject = "Test Email from Render"
     body = "✅ If you receive this, your Class Alert Bot email system works!"
     send_email(subject, body)
-    return "📨 Test email triggered. Check your inbox or spam!"
+    return "📨 Test email triggered. Check your inbox or spam! okayy 1"
 
 
 # -----------------------------
