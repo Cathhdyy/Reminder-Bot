@@ -105,14 +105,18 @@ def send_email(subject, body):
         msg['Subject'] = subject
 
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.set_debuglevel(1)  # 👈 Show Gmail log
+            print("🔹 Connecting to Gmail SMTP...")
             server.starttls()
+            print("🔹 Logging in...")
             server.login(EMAIL, PASSWORD)
+            print("🔹 Sending email...")
             server.send_message(msg)
 
         print(f"✅ Email sent: {subject}")
+        return True
     except Exception as e:
         print(f"❌ Failed to send email: {e}")
+        return False
 
 # -----------------------------
 # 🔹 Class checker
