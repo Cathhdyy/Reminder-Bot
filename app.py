@@ -59,6 +59,7 @@ timetable = {
     ],
     "Thursday": [
         ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
+        ("09:55", "Modern Computer Architecture – Rojesh Pradhan"),
         ("11:10", "Physics – Vivek Srivastav"),
         ("12:50", "Personal Effectiveness – Mr. Swapan K. Mullick"),
         ("13:40", "Personal Effectiveness – Mr. Swapan K. Mullick"),
