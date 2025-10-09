@@ -103,25 +103,27 @@ timetable = {
 # -----------------------------
 def send_email(subject, body):
     try:
-        print(f"📨 Trying to send email from {EMAIL} to {TO_EMAIL}...")
+        app.logger.info(f"📨 Trying to send email from {EMAIL} to {TO_EMAIL}...")
         msg = MIMEText(body)
         msg['From'] = EMAIL
         msg['To'] = TO_EMAIL
         msg['Subject'] = subject
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            print("🔹 Connecting to Gmail SMTP...")
+        app.logger.info("🔹 Connecting to Gmail SMTP...")
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=30) as server:
             server.starttls()
-            print("🔹 Logging in...")
+            app.logger.info("🔹 Logging in...")
             server.login(EMAIL, PASSWORD)
-            print("🔹 Sending email...")
+            app.logger.info("🔹 Sending email...")
             server.send_message(msg)
 
-        print(f"✅ Email sent: {subject}")
+        app.logger.info(f"✅ Email sent: {subject}")
         return True
+
     except Exception as e:
-        print(f"❌ Failed to send email: {e}")
+        app.logger.error(f"❌ Failed to send email: {e}")
         return False
+
 
 # -----------------------------
 # 🔹 Class checker
