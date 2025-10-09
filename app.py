@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 from flask import Flask
 import threading
+import sys
 
 # -----------------------------
 # 🔹 Load environment variables
@@ -23,6 +24,8 @@ if not EMAIL or not PASSWORD:
 # 🔹 Flask app
 # -----------------------------
 app = Flask(__name__)
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.INFO)
 
 @app.route("/")
 def home():
@@ -30,10 +33,11 @@ def home():
 
 @app.route("/testmail")
 def testmail():
-    subject = "Test Email from Render"
-    body = "✅ If you receive this, your Class Alert Bot email system works!"
-    send_email(subject, body)
-    return "📨 Test email triggered. Check your inbox or spam! okayy 1"
+    success = send_email("Render Test", "If you see this, your Render mail works!")
+    if success:
+        return "✅ Email sent! Check inbox/spam."
+    else:
+        return "❌ Email failed. Check Render logs."
 
 
 # -----------------------------
