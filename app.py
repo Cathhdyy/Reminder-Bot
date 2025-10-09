@@ -95,12 +95,14 @@ timetable = {
 # -----------------------------
 def send_email(subject, body):
     try:
+        print(f"📨 Trying to send email from {EMAIL} to {TO_EMAIL}...")
         msg = MIMEText(body)
         msg['From'] = EMAIL
         msg['To'] = TO_EMAIL
         msg['Subject'] = subject
 
         with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.set_debuglevel(1)  # 👈 This shows full Gmail connection log
             server.starttls()
             server.login(EMAIL, PASSWORD)
             server.send_message(msg)
