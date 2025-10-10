@@ -1,29 +1,27 @@
 import os
-import smtplib
-from email.mime.text import MIMEText
+import requests
+from flask import Flask
 from dotenv import load_dotenv
 import schedule
+import threading
 import time
 from datetime import datetime
-from flask import Flask
-import threading
-import sys
 import logging
-import requests
+import sys
 
 # -----------------------------
 # 🔹 Load environment variables
 # -----------------------------
 load_dotenv()
-EMAIL = os.getenv("EMAIL")
-PASSWORD = os.getenv("PASSWORD")
-TO_EMAIL = "sanskarsharmamusic999@gmail.com"
 
-if not EMAIL or not PASSWORD:
-    raise ValueError("Please set EMAIL and PASSWORD in your Render environment")
+EMAIL = os.getenv("EMAIL")  # Your Brevo verified sender email
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+
+if not BREVO_API_KEY:
+    raise ValueError("Please set BREVO_API_KEY in your Render environment")
 
 # -----------------------------
-# 🔹 Flask app
+# 🔹 Flask app setup
 # -----------------------------
 app = Flask(__name__)
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
@@ -31,16 +29,15 @@ app.logger.setLevel(logging.INFO)
 
 @app.route("/")
 def home():
-    return "📬 Class Alert Agent is running!"
+    return "📬 Class Alert Agent (Brevo) is running!"
 
 @app.route("/testmail")
 def testmail():
-    success = send_email("Render Test", "If you see this, your Render mail works!")
+    success = send_email("Render Test", "If you see this, your Brevo mail works!")
     if success:
         return "✅ Email sent! Check inbox/spam."
     else:
         return "❌ Email failed. Check Render logs."
-
 
 # -----------------------------
 # 🔹 Timetable
@@ -100,17 +97,16 @@ timetable = {
 }
 
 # -----------------------------
-# 🔹 Email function
+# 🔹 Email via Brevo API
 # -----------------------------
 def send_email(subject, body):
-    api_key = os.getenv("BREVO_API_KEY")
-    sender = "yourname@yourdomain.com"  # or verified Brevo sender
+    sender = EMAIL  # Your verified sender
     to_email = "sanskarsharmamusic999@gmail.com"
 
     url = "https://api.brevo.com/v3/smtp/email"
     headers = {
         "accept": "application/json",
-        "api-key": api_key,
+        "api-key": BREVO_API_KEY,
         "content-type": "application/json",
     }
     data = {
@@ -120,9 +116,14 @@ def send_email(subject, body):
         "htmlContent": f"<p>{body}</p>",
     }
 
-    response = requests.post(url, headers=headers, json=data)
-    return response.status_code == 201
-
+    try:
+        response = requests.post(url, headers=headers, json=data)
+        print(f"📧 Sending to {to_email} — Status: {response.status_code}")
+        print("🔹 Response:", response.text)
+        return response.status_code in [200, 201, 202]
+    except Exception as e:
+        print("❌ Email send failed:", e)
+        return False
 
 # -----------------------------
 # 🔹 Class checker
@@ -138,11 +139,11 @@ def check_class():
     for i, (time_slot, subject) in enumerate(today_classes):
         if now == time_slot:
             next_class = today_classes[i + 1][1] if i + 1 < len(today_classes) else "No more classes today!"
-            body = f"📚 Current class: {subject}\n⏭️ Next class: {next_class}"
+            body = f"📚 Current class: {subject}<br>⏭️ Next class: {next_class}"
             send_email("Class Alert 📅", body)
 
 # -----------------------------
-# 🔹 Schedule in background
+# 🔹 Background scheduler
 # -----------------------------
 def run_schedule():
     schedule.every(1).minutes.do(check_class)
@@ -151,9 +152,9 @@ def run_schedule():
         time.sleep(60)
 
 # -----------------------------
-# 🔹 Run Flask and schedule together
+# 🔹 Run Flask + Scheduler
 # -----------------------------
 if __name__ == "__main__":
-    threading.Thread(target=run_schedule, daemon=True).start()  # 🧠 Background thread
+    threading.Thread(target=run_schedule, daemon=True).start()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
