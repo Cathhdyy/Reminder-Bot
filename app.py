@@ -100,7 +100,7 @@ timetable = {
 # 🔹 Email via Brevo API
 # -----------------------------
 def send_email(subject, body):
-    sender = EMAIL  # Your verified sender
+    sender = "testmaillle699@gmail.com"  # Your verified sender
     to_email = "sanskarsharmamusic999@gmail.com"
 
     url = "https://api.brevo.com/v3/smtp/email"
