@@ -108,7 +108,7 @@ def send_email(subject, body):
         "content-type": "application/json",
     }
     data = {
-        "sender": {"name": "Class Alert Agent", "email": SENDER_EMAIL},
+        "sender": {"name": "Sanskar's Alert Agent", "email": SENDER_EMAIL},
         "to": [{"email": TO_EMAIL}],
         "subject": subject,
         "htmlContent": f"<p>{body}</p>",
