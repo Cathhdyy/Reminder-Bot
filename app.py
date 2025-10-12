@@ -100,9 +100,6 @@ timetable = {
 # 🔹 Email via Brevo API
 # -----------------------------
 def send_email(subject, body):
-    sender = "testmaillle699@gmail.com"  # Your verified sender
-    to_email = "sanskarsharmamusic999@gmail.com"
-
     url = "https://api.brevo.com/v3/smtp/email"
     headers = {
         "accept": "application/json",
@@ -110,16 +107,17 @@ def send_email(subject, body):
         "content-type": "application/json",
     }
     data = {
-        "sender": {"name": "Class Alert Agent", "email": sender},
-        "to": [{"email": to_email}],
+        "sender": {"name": "Class Alert Agent", "email": SENDER_EMAIL},
+        "to": [{"email": TO_EMAIL}],
         "subject": subject,
         "htmlContent": f"<p>{body}</p>",
     }
 
     try:
         response = requests.post(url, headers=headers, json=data)
-        print(f"📧 Sending to {to_email} — Status: {response.status_code}")
-        print("🔹 Response:", response.text)
+        print("📧 Sending to", TO_EMAIL)
+        print("Status Code:", response.status_code)
+        print("Response Body:", response.text)
         return response.status_code in [200, 201, 202]
     except Exception as e:
         print("❌ Email send failed:", e)
