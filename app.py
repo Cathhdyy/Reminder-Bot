@@ -15,6 +15,7 @@ import sys
 load_dotenv()
 
 SENDER_EMAIL = os.getenv("SENDER_EMAIL")  # Your Brevo verified sender email
+TO_EMAIL = "sanskarsharmamusic999@gmail.com"
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 
 if not BREVO_API_KEY:
