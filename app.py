@@ -41,6 +41,10 @@ def home():
 def testmail():
     success = send_email("Render Test", "If you see this, your Brevo mail works!")
     return "✅ Email sent!" if success else "❌ Email failed."
+@app.route("/checknow")
+def checknow():
+    check_class()
+    return "✅ Checked classes, see logs"
 
 # -----------------------------
 # 🔹 Timetable
@@ -169,6 +173,6 @@ def run_schedule():
 # 🔹 Run Flask + Scheduler
 # -----------------------------
 if __name__ == "__main__":
-    threading.Thread(target=run_schedule, daemon=True).start()
+    run_schedule()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
