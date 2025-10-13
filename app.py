@@ -2,6 +2,9 @@ import os
 import requests
 from flask import Flask
 from dotenv import load_dotenv
+import schedule
+import threading
+import time
 from datetime import datetime
 import logging
 import sys
@@ -27,15 +30,17 @@ if not BREVO_API_KEY:
 # 🔹 Flask app
 # -----------------------------
 app = Flask(__name__)
+app.url_map.strict_slashes = False  # <-- allows /route and /route/ both
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.INFO)
 
-# -----------------------------
-# 🔹 Routes
-# -----------------------------
 @app.route("/")
 def home():
     return "📬 Class Alert Agent (Brevo) is running!"
+
+@app.route("/ping")
+def ping():
+    return "pong"
 
 @app.route("/testmail")
 def testmail():
@@ -48,7 +53,7 @@ def checknow():
     return "✅ Checked classes, see logs"
 
 # -----------------------------
-# 🔹 Timetable
+# 🔹 Timetable (example)
 # -----------------------------
 timetable = {
     "Monday": [
@@ -102,8 +107,8 @@ timetable = {
         ("13:40", "Club Activity – Unassigned"),
         ("14:30", "Club Activity – Unassigned"),
         ("15:20", "Club Activity – Unassigned")
-    ]
-    # ... add other days
+    ],
+    # Add other days similarly...
 }
 
 # -----------------------------
@@ -148,8 +153,7 @@ def check_class():
         )
         class_time = IST.localize(class_time)
 
-        # ±2 minutes window
-        if abs((now - class_time).total_seconds()) <= 120:
+        if abs((now - class_time).total_seconds()) <= 120:  # ±2 min window
             next_class = today_classes[i + 1][1] if i + 1 < len(today_classes) else "No more classes today!"
             body = f"📚 Current class: {subject}<br>⏭️ Next class: {next_class}"
             send_email("Class Alert 📅", body)
@@ -159,8 +163,20 @@ def check_class():
     print(f"🕒 Checked at {now.strftime('%H:%M:%S')} — no matching class time.")
 
 # -----------------------------
-# 🔹 Run Flask app
+# 🔹 Scheduler
+# -----------------------------
+def run_schedule():
+    schedule.every(1).minutes.do(check_class)
+    print("⏰ Scheduler started. Checking classes every minute...")
+    while True:
+        schedule.run_pending()
+        time.sleep(60)
+        print("🔁 Scheduler tick:", datetime.now(IST).strftime("%H:%M:%S"))
+
+# -----------------------------
+# 🔹 Run Flask + Scheduler
 # -----------------------------
 if __name__ == "__main__":
+    threading.Thread(target=run_schedule, daemon=True).start()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
