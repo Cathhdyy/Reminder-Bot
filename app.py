@@ -18,29 +18,32 @@ IST = pytz.timezone("Asia/Kolkata")
 # -----------------------------
 # 🔹 Load environment variables
 # -----------------------------
-load_dotenv()
-SENDER_EMAIL = os.getenv("SENDER_EMAIL")
-TO_EMAIL = "sanskarsharmamusic999@gmail.com"
-BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+if not os.path.exists(dotenv_path):
+    raise FileNotFoundError(".env file not found. Please create it in the project root.")
 
-if not BREVO_API_KEY:
-    raise ValueError("Please set BREVO_API_KEY in your Render environment")
+load_dotenv(dotenv_path)
+
+SENDER_EMAIL = os.getenv("SENDER_EMAIL")
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
+TO_EMAIL = "sanskarsharmamusic999@gmail.com"
+
+# Validate environment variables
+if not SENDER_EMAIL or not BREVO_API_KEY:
+    raise ValueError("SENDER_EMAIL or BREVO_API_KEY is missing in your .env file.")
+
+print(f"✅ Loaded env: SENDER_EMAIL={SENDER_EMAIL}, BREVO_API_KEY={BREVO_API_KEY[:8]}…")
 
 # -----------------------------
 # 🔹 Flask app
 # -----------------------------
 app = Flask(__name__)
-app.url_map.strict_slashes = False  # <-- allows /route and /route/ both
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.INFO)
 
 @app.route("/")
 def home():
     return "📬 Class Alert Agent (Brevo) is running!"
-
-@app.route("/ping")
-def ping():
-    return "pong"
 
 @app.route("/testmail")
 def testmail():
@@ -53,7 +56,7 @@ def checknow():
     return "✅ Checked classes, see logs"
 
 # -----------------------------
-# 🔹 Timetable (example)
+# 🔹 Timetable
 # -----------------------------
 timetable = {
     "Monday": [
@@ -107,8 +110,8 @@ timetable = {
         ("13:40", "Club Activity – Unassigned"),
         ("14:30", "Club Activity – Unassigned"),
         ("15:20", "Club Activity – Unassigned")
-    ],
-    # Add other days similarly...
+    ]
+    # Add other days similarly
 }
 
 # -----------------------------
@@ -131,12 +134,12 @@ def send_email(subject, body):
     try:
         response = requests.post(url, headers=headers, json=data)
         print(f"📧 Sending to {TO_EMAIL} | Status: {response.status_code}")
-        print("📄 Response:", response.text)  # <-- This will show Brevo API response
+        if response.status_code not in [200, 201, 202]:
+            print("❌ Response:", response.text)
         return response.status_code in [200, 201, 202]
     except Exception as e:
         print("❌ Email send failed:", e)
         return False
-
 
 # -----------------------------
 # 🔹 Class checker
@@ -149,17 +152,21 @@ def check_class():
         return
 
     today_classes = timetable[today]
+
     for i, (time_slot, subject) in enumerate(today_classes):
         class_time = datetime.strptime(time_slot, "%H:%M").replace(
             year=now.year, month=now.month, day=now.day
         )
         class_time = IST.localize(class_time)
 
-        if abs((now - class_time).total_seconds()) <= 120:  # ±2 min window
+        # ±2 minutes tolerance
+        if abs((now - class_time).total_seconds()) <= 120:
             next_class = today_classes[i + 1][1] if i + 1 < len(today_classes) else "No more classes today!"
             body = f"📚 Current class: {subject}<br>⏭️ Next class: {next_class}"
-            send_email("Class Alert 📅", body)
-            print(f"✅ Class alert sent for {subject} at {time_slot}")
+            if send_email("Class Alert 📅", body):
+                print(f"✅ Class alert sent for {subject} at {time_slot}")
+            else:
+                print(f"❌ Failed to send class alert for {subject} at {time_slot}")
             return
 
     print(f"🕒 Checked at {now.strftime('%H:%M:%S')} — no matching class time.")
@@ -179,6 +186,8 @@ def run_schedule():
 # 🔹 Run Flask + Scheduler
 # -----------------------------
 if __name__ == "__main__":
+    # Run scheduler in a background thread
     threading.Thread(target=run_schedule, daemon=True).start()
+    
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
