@@ -2,9 +2,6 @@ import os
 import requests
 from flask import Flask
 from dotenv import load_dotenv
-import schedule
-import threading
-import time
 from datetime import datetime
 import logging
 import sys
@@ -33,6 +30,9 @@ app = Flask(__name__)
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.INFO)
 
+# -----------------------------
+# 🔹 Routes
+# -----------------------------
 @app.route("/")
 def home():
     return "📬 Class Alert Agent (Brevo) is running!"
@@ -41,6 +41,7 @@ def home():
 def testmail():
     success = send_email("Render Test", "If you see this, your Brevo mail works!")
     return "✅ Email sent!" if success else "❌ Email failed."
+
 @app.route("/checknow")
 def checknow():
     check_class()
@@ -59,50 +60,7 @@ timetable = {
         ("14:30", "Programming for Problem Solving – Nawang Lama"),
         ("15:20", "Programming for Problem Solving – Nawang Lama")
     ],
-    "Tuesday": [
-        ("09:30", "Programming for Problem Solving – Nawang Lama"),
-        ("10:20", "Programming for Problem Solving – Nawang Lama"),
-        ("12:50", "English and Communication – Dechen Chopel Lepcha"),
-        ("13:40", "English and Communication – Dechen Chopel Lepcha"),
-        ("14:30", "Programming for Problem Solving – Nawang Lama"),
-        ("15:20", "Programming for Problem Solving – Nawang Lama")
-    ],
-    "Wednesday": [
-        ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
-        ("10:20", "English and Communication – Dechen Chopel Lepcha"),
-        ("11:10", "English and Communication – Dechen Chopel Lepcha"),
-        ("12:50", "Physics – Vivek Srivastav"),
-        ("13:40", "Physics – Vivek Srivastav"),
-        ("14:30", "Physics – Vivek Srivastav"),
-        ("15:20", "Physics – Vivek Srivastav")
-    ],
-    "Thursday": [
-        ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
-        ("09:55", "Modern Computer Architecture – Rojesh Pradhan"),
-        ("11:10", "Physics – Vivek Srivastav"),
-        ("12:50", "Personal Effectiveness – Mr. Swapan K. Mullick"),
-        ("13:40", "Personal Effectiveness – Mr. Swapan K. Mullick"),
-        ("14:30", "Club Activity – Unassigned"),
-        ("15:20", "Club Activity – Unassigned")
-    ],
-    "Friday": [
-        ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
-        ("10:20", "Mathematics - I – Nabin Dahal"),
-        ("11:10", "Mathematics - I – Nabin Dahal"),
-        ("12:50", "Physics – Vivek Srivastav"),
-        ("14:30", "Club Activity – Unassigned"),
-        ("15:20", "Club Activity – Unassigned")
-    ],
-    "Saturday": [
-        ("09:30", "Club Activity – Unassigned"),
-        ("10:20", "Club Activity – Unassigned"),
-        ("11:10", "Club Activity – Unassigned"),
-        ("12:50", "Club Activity – Unassigned"),
-        ("13:40", "Club Activity – Unassigned"),
-        ("14:30", "Club Activity – Unassigned"),
-        ("15:20", "Club Activity – Unassigned") 
-    ]
-    # Add remaining days
+    # ... add other days
 }
 
 # -----------------------------
@@ -141,7 +99,6 @@ def check_class():
         return
 
     today_classes = timetable[today]
-
     for i, (time_slot, subject) in enumerate(today_classes):
         class_time = datetime.strptime(time_slot, "%H:%M").replace(
             year=now.year, month=now.month, day=now.day
@@ -159,20 +116,8 @@ def check_class():
     print(f"🕒 Checked at {now.strftime('%H:%M:%S')} — no matching class time.")
 
 # -----------------------------
-# 🔹 Scheduler
-# -----------------------------
-def run_schedule():
-    schedule.every(1).minutes.do(check_class)
-    print("⏰ Scheduler started. Checking classes every minute...")
-    while True:
-        schedule.run_pending()
-        time.sleep(60)
-        print("🔁 Scheduler tick:", datetime.now(IST).strftime("%H:%M:%S"))
-
-# -----------------------------
-# 🔹 Run Flask + Scheduler
+# 🔹 Run Flask app
 # -----------------------------
 if __name__ == "__main__":
-    run_schedule()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
