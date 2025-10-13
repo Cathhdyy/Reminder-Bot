@@ -129,26 +129,37 @@ def send_email(subject, body):
 # 🔹 Class checker (Improved)
 # -----------------------------
 def check_class():
-    today = datetime.now(IST).strftime("%A")
-    now = datetime.now(IST)
-    print(f"🕒 Checking classes for {today} | Current time: {now.strftime('%H:%M:%S')}")
+    today = datetime.now().strftime("%A")
+    now = datetime.now()
 
+    # Check if today exists in the timetable
     if today not in timetable:
-        print("No classes scheduled today.")
+        print(f"📅 No timetable found for {today}")
         return
 
-    for i, (time_slot, subject) in enumerate(timetable[today]):
-        class_time = IST.localize(datetime.strptime(time_slot, "%H:%M").replace(
-            year=now.year, month=now.month, day=now.day
-        ))
-        diff = (now - class_time).total_seconds()
-        print(f"🔍 Comparing {time_slot} ({subject}) | Diff: {diff:.0f}s")
+    today_classes = timetable[today]
 
-        if abs(diff) <= 60:
-            next_class = today_classes[i + 1][1] if i + 1 < len(today_classes) else "No more classes today!"
+    for i, (time_slot, subject) in enumerate(today_classes):
+        class_time = datetime.strptime(time_slot, "%H:%M").replace(
+            year=now.year, month=now.month, day=now.day
+        )
+
+        # Allow ±1 minute tolerance window
+        if abs((now - class_time).total_seconds()) <= 60:
+            # ✅ make sure we’re still inside the loop when using today_classes
+            next_class = (
+                today_classes[i + 1][1]
+                if i + 1 < len(today_classes)
+                else "No more classes today!"
+            )
+
             body = f"📚 Current class: {subject}<br>⏭️ Next class: {next_class}"
             send_email("Class Alert 📅", body)
             print(f"✅ Class alert sent for {subject} at {time_slot}")
+            return  # stop after sending one alert
+
+    print(f"🕒 Checked at {now.strftime('%H:%M:%S')} — no matching class time.")
+
 
 # -----------------------------
 # 🔹 Background scheduler
