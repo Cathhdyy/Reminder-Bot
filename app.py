@@ -48,7 +48,7 @@ def testmail():
 timetable = {
     "Monday": [
         ("09:30", "Design Thinking – Nawang Lama"),
-        ("09:55", "⚡ Test Class – Scheduler Check"),
+        ("10:25", "⚡ Test Class – Scheduler Check"),
         ("10:20", "Design Thinking – Nawang Lama"),
         ("12:50", "Mathematics - I – Nabin Dahal"),
         ("13:40", "Mathematics - I – Nabin Dahal"),
@@ -129,18 +129,22 @@ def send_email(subject, body):
 # 🔹 Class checker (Improved)
 # -----------------------------
 def check_class():
-    today = datetime.now().strftime("%A")
+    today = datetime.now(IST).strftime("%A")
     now = datetime.now(IST)
+    print(f"🕒 Checking classes for {today} | Current time: {now.strftime('%H:%M:%S')}")
 
     if today not in timetable:
+        print("No classes scheduled today.")
         return
 
-    today_classes = timetable[today]
-    for i, (time_slot, subject) in enumerate(today_classes):
-        class_time = IST.localize(datetime.strptime(time_slot, "%H:%M").replace(year=now.year, month=now.month, day=now.day
-        )
-        # Allow a ±1 minute window to avoid timing misses
-        if abs((now - class_time).total_seconds()) <= 60:
+    for i, (time_slot, subject) in enumerate(timetable[today]):
+        class_time = IST.localize(datetime.strptime(time_slot, "%H:%M").replace(
+            year=now.year, month=now.month, day=now.day
+        ))
+        diff = (now - class_time).total_seconds()
+        print(f"🔍 Comparing {time_slot} ({subject}) | Diff: {diff:.0f}s")
+
+        if abs(diff) <= 60:
             next_class = today_classes[i + 1][1] if i + 1 < len(today_classes) else "No more classes today!"
             body = f"📚 Current class: {subject}<br>⏭️ Next class: {next_class}"
             send_email("Class Alert 📅", body)
