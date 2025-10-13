@@ -46,6 +46,7 @@ def testmail():
 timetable = {
     "Monday": [
         ("09:30", "Design Thinking – Nawang Lama"),
+        ("09:55", "⚡ Test Class – Scheduler Check"),
         ("10:20", "Design Thinking – Nawang Lama"),
         ("12:50", "Mathematics - I – Nabin Dahal"),
         ("13:40", "Mathematics - I – Nabin Dahal"),
