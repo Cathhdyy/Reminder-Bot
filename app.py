@@ -53,13 +53,56 @@ def checknow():
 timetable = {
     "Monday": [
         ("09:30", "Design Thinking – Nawang Lama"),
-        ("11:15", "⚡ Test Class – Scheduler Check"),
+        ("10:37", "⚡ Test Class – Scheduler Check"),
         ("10:20", "Design Thinking – Nawang Lama"),
         ("12:50", "Mathematics - I – Nabin Dahal"),
         ("13:40", "Mathematics - I – Nabin Dahal"),
         ("14:30", "Programming for Problem Solving – Nawang Lama"),
         ("15:20", "Programming for Problem Solving – Nawang Lama")
     ],
+    "Tuesday": [
+        ("09:30", "Programming for Problem Solving – Nawang Lama"),
+        ("10:20", "Programming for Problem Solving – Nawang Lama"),
+        ("12:50", "English and Communication – Dechen Chopel Lepcha"),
+        ("13:40", "English and Communication – Dechen Chopel Lepcha"),
+        ("14:30", "Programming for Problem Solving – Nawang Lama"),
+        ("15:20", "Programming for Problem Solving – Nawang Lama")
+    ],
+    "Wednesday": [
+        ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
+        ("10:20", "English and Communication – Dechen Chopel Lepcha"),
+        ("11:10", "English and Communication – Dechen Chopel Lepcha"),
+        ("12:50", "Physics – Vivek Srivastav"),
+        ("13:40", "Physics – Vivek Srivastav"),
+        ("14:30", "Physics – Vivek Srivastav"),
+        ("15:20", "Physics – Vivek Srivastav")
+    ],
+    "Thursday": [
+        ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
+        ("09:55", "Modern Computer Architecture – Rojesh Pradhan"),
+        ("11:10", "Physics – Vivek Srivastav"),
+        ("12:50", "Personal Effectiveness – Mr. Swapan K. Mullick"),
+        ("13:40", "Personal Effectiveness – Mr. Swapan K. Mullick"),
+        ("14:30", "Club Activity – Unassigned"),
+        ("15:20", "Club Activity – Unassigned")
+    ],
+    "Friday": [
+        ("09:30", "Modern Computer Architecture – Rojesh Pradhan"),
+        ("10:20", "Mathematics - I – Nabin Dahal"),
+        ("11:10", "Mathematics - I – Nabin Dahal"),
+        ("12:50", "Physics – Vivek Srivastav"),
+        ("14:30", "Club Activity – Unassigned"),
+        ("15:20", "Club Activity – Unassigned")
+    ],
+    "Saturday": [
+        ("09:30", "Club Activity – Unassigned"),
+        ("10:20", "Club Activity – Unassigned"),
+        ("11:10", "Club Activity – Unassigned"),
+        ("12:50", "Club Activity – Unassigned"),
+        ("13:40", "Club Activity – Unassigned"),
+        ("14:30", "Club Activity – Unassigned"),
+        ("15:20", "Club Activity – Unassigned")
+    ]
     # ... add other days
 }
 
