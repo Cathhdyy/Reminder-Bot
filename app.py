@@ -131,10 +131,12 @@ def send_email(subject, body):
     try:
         response = requests.post(url, headers=headers, json=data)
         print(f"📧 Sending to {TO_EMAIL} | Status: {response.status_code}")
+        print("📄 Response:", response.text)  # <-- This will show Brevo API response
         return response.status_code in [200, 201, 202]
     except Exception as e:
         print("❌ Email send failed:", e)
         return False
+
 
 # -----------------------------
 # 🔹 Class checker
