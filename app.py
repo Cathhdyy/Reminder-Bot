@@ -96,7 +96,8 @@ timetable = {
         ("12:50", "Club Activity – Unassigned"),
         ("13:40", "Club Activity – Unassigned"),
         ("14:30", "Club Activity – Unassigned"),
-        ("15:20", "Club Activity – Unassigned")
+        ("15:20", "Club Activity – Unassigned") 
+    ]
     # Add remaining days
 }
 
