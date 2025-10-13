@@ -8,6 +8,8 @@ import time
 from datetime import datetime, timedelta
 import logging
 import sys
+import pytz
+IST = pytz.timezone("Asia/Kolkata")
 
 # -----------------------------
 # 🔹 Load environment variables
@@ -128,15 +130,14 @@ def send_email(subject, body):
 # -----------------------------
 def check_class():
     today = datetime.now().strftime("%A")
-    now = datetime.now()
+    now = datetime.now(IST)
 
     if today not in timetable:
         return
 
     today_classes = timetable[today]
     for i, (time_slot, subject) in enumerate(today_classes):
-        class_time = datetime.strptime(time_slot, "%H:%M").replace(
-            year=now.year, month=now.month, day=now.day
+        class_time = IST.localize(datetime.strptime(time_slot, "%H:%M").replace(year=now.year, month=now.month, day=now.day
         )
         # Allow a ±1 minute window to avoid timing misses
         if abs((now - class_time).total_seconds()) <= 60:
