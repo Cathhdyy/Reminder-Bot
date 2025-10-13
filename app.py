@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import schedule
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import sys
 
@@ -116,39 +116,44 @@ def send_email(subject, body):
 
     try:
         response = requests.post(url, headers=headers, json=data)
-        print("📧 Sending to", TO_EMAIL)
-        print("Status Code:", response.status_code)
-        print("Response Body:", response.text)
+        print(f"📧 Sending to {TO_EMAIL} | Status: {response.status_code}")
         return response.status_code in [200, 201, 202]
     except Exception as e:
         print("❌ Email send failed:", e)
         return False
 
 # -----------------------------
-# 🔹 Class checker
+# 🔹 Class checker (Improved)
 # -----------------------------
 def check_class():
     today = datetime.now().strftime("%A")
-    now = datetime.now().strftime("%H:%M")
+    now = datetime.now()
 
     if today not in timetable:
         return
 
     today_classes = timetable[today]
     for i, (time_slot, subject) in enumerate(today_classes):
-        if now == time_slot:
+        class_time = datetime.strptime(time_slot, "%H:%M").replace(
+            year=now.year, month=now.month, day=now.day
+        )
+        # Allow a ±1 minute window to avoid timing misses
+        if abs((now - class_time).total_seconds()) <= 60:
             next_class = today_classes[i + 1][1] if i + 1 < len(today_classes) else "No more classes today!"
             body = f"📚 Current class: {subject}<br>⏭️ Next class: {next_class}"
             send_email("Class Alert 📅", body)
+            print(f"✅ Class alert sent for {subject} at {time_slot}")
 
 # -----------------------------
 # 🔹 Background scheduler
 # -----------------------------
 def run_schedule():
     schedule.every(1).minutes.do(check_class)
+    print("⏰ Scheduler started. Checking for classes every minute...")
     while True:
         schedule.run_pending()
         time.sleep(60)
+        print("🔁 Scheduler tick:", datetime.now().strftime("%H:%M:%S"))
 
 # -----------------------------
 # 🔹 Run Flask + Scheduler
