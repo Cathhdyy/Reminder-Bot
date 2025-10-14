@@ -45,7 +45,7 @@ app.logger.setLevel(logging.INFO)
 def home():
     return "📬 Class Alert Agent (Brevo) is running!"
 
-@app.route("/testmail")
+@app.route("/testmail1")
 def testmail():
     success = send_email("Render Test", "If you see this, your Brevo mail works!")
     return "✅ Email sent!" if success else "❌ Email failed."
